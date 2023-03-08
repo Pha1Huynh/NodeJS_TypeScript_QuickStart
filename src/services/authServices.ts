@@ -16,7 +16,6 @@ export const refreshAccessToken = async (refreshToken: string) => {
                     process.env.REFRESH_TOKEN_SECRET,
                     async (err: VerifyErrors, data: JwtPayload) => {
                         if (err) {
-                            next(err);
                             return {
                                 errCode: -1,
                                 errMessage: 'Accesstoken invalid',
