@@ -8,7 +8,8 @@ export const authenToken = (req: customRequest, res: Response, next: NextFunctio
     const authorizationHeader = req.headers['authorization'];
     // 'Beaer [token]'
     if (!authorizationHeader) {
-        res.status(400).json({
+        res.status(417).json({
+            errCode: -1,
             errMessage: 'Undefined accesstoken',
         });
     }
@@ -16,15 +17,18 @@ export const authenToken = (req: customRequest, res: Response, next: NextFunctio
     if (authorizationHeader.indexOf(process.env.TOKEN_NAME, 0) === 0) {
         const token = authorizationHeader.split(' ')[1];
         if (!token) {
-            res.status(400).json({
+            res.status(417).json({
+                errCode: -1,
                 errMessage: 'Undefined accesstoken',
             });
         }
 
         jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, data: IdataUserFromMiddleware) => {
             if (err) {
-                res.status(401).json({
+                res.status(400).json({
+                    errCode: -1,
                     errMessage: 'Accesstoken invalid',
+                    errName: err.message,
                 });
             } else {
                 req.userInfo = data;
@@ -33,7 +37,7 @@ export const authenToken = (req: customRequest, res: Response, next: NextFunctio
             }
         });
     } else {
-        res.status(400).json({
+        res.status(417).json({
             errCode: -1,
             errMessage: 'Token invalid',
         });
