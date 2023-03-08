@@ -1,11 +1,11 @@
 import express from 'express';
 import { authenToken } from '../middleware/authMiddleware';
-import { Request, Response } from 'express';
+import { Request, Response, NextFunction } from 'express';
 import * as userServices from '../services/userServices';
 import { customRequest } from '../middleware/authMiddleware';
 const router = express.Router();
 
-router.post('/create', async (req: Request, res: Response) => {
+router.post('/create', async (req: Request, res: Response, next: NextFunction) => {
     try {
         const dataFromClient = req.body;
 
@@ -15,28 +15,28 @@ router.post('/create', async (req: Request, res: Response) => {
         });
         return res.status(201).json({ data });
     } catch (e) {
-        console.log(e);
+        next(e);
         return res.status(500).json({
             errCode: -1,
             errMessage: 'Internal Server Error',
         });
     }
 });
-router.post('/login', async (req: Request, res: Response) => {
+router.post('/login', async (req: Request, res: Response, next: NextFunction) => {
     try {
         const dataFromClient = req.body;
         const data = await userServices.handleLogin(dataFromClient);
 
         return res.status(200).json(data);
     } catch (e) {
-        console.log(e);
+        next(e);
         return res.status(500).json({
             errCode: -1,
             errMessage: 'Internal Server Error',
         });
     }
 });
-router.patch('/update', authenToken, async (req: customRequest, res: Response) => {
+router.patch('/update', authenToken, async (req: customRequest, res: Response, next: NextFunction) => {
     try {
         const { dataFromClient } = req.body;
         const { userInfo } = req;
@@ -44,7 +44,7 @@ router.patch('/update', authenToken, async (req: customRequest, res: Response) =
         const data = await userServices.handleUpdateUser(userInfo, dataFromClient);
         return res.status(200).json(data);
     } catch (e) {
-        console.log(e);
+        next(e);
         return res.status(500).json({
             errCode: -1,
             errMessage: 'Internal Server Error',
