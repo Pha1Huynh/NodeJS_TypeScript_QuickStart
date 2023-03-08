@@ -8,7 +8,7 @@ export const authenToken = (req: customRequest, res: Response, next: NextFunctio
     const authorizationHeader = req.headers['authorization'];
     // 'Beaer [token]'
     if (!authorizationHeader) {
-        res.status(400).json({
+        res.status(401).json({
             errMessage: 'Undefined accesstoken',
         });
     }
@@ -16,7 +16,7 @@ export const authenToken = (req: customRequest, res: Response, next: NextFunctio
     if (authorizationHeader.indexOf(process.env.TOKEN_NAME, 0) === 0) {
         const token = authorizationHeader.split(' ')[1];
         if (!token) {
-            res.status(400).json({
+            res.status(401).json({
                 errMessage: 'Undefined accesstoken',
             });
         }
@@ -33,7 +33,7 @@ export const authenToken = (req: customRequest, res: Response, next: NextFunctio
             }
         });
     } else {
-        res.status(400).json({
+        res.status(401).json({
             errCode: -1,
             errMessage: 'Token invalid',
         });
