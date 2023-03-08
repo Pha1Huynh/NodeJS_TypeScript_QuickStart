@@ -2,6 +2,7 @@ import express from 'express';
 import { authenToken } from '../middleware/authMiddleware';
 import { Request, Response } from 'express';
 import * as userServices from '../services/userServices';
+import { customRequest } from '../middleware/authMiddleware';
 const router = express.Router();
 
 router.post('/create', async (req: Request, res: Response) => {
@@ -35,9 +36,11 @@ router.post('/login', async (req: Request, res: Response) => {
         });
     }
 });
-router.patch('/update', authenToken, async (req: Request, res: Response) => {
+router.patch('/update', authenToken, async (req: customRequest, res: Response) => {
     try {
-        const { dataFromClient, userInfo } = req.body;
+        const { dataFromClient } = req.body;
+        const { userInfo } = req;
+
         const data = await userServices.handleUpdateUser(userInfo, dataFromClient);
         return res.status(200).json(data);
     } catch (e) {
