@@ -13,7 +13,7 @@ export interface IdataUserFromMiddleware extends IUserInfo {
     exp: number;
 }
 
-interface IDataUpdate {
+export interface IDataUpdate {
     name?: string;
     password?: string;
 }
@@ -22,7 +22,7 @@ export const handleRegister = async (dataRegister: IUserInfo) => {
     if (dataRegister) {
         const user = new User(dataRegister);
         await user.save();
-        return { statusCode: 201, data: user, errMessage: 'Created success' };
+        return { data: user, errMessage: 'Created success' };
     }
 };
 export const handleLogin = async (loginInfo: IUserInfo) => {
@@ -46,14 +46,13 @@ export const handleLogin = async (loginInfo: IUserInfo) => {
 
         await login.save();
         return {
-            statusCode: 200,
             errMessage: 'Login sucess',
-            tokens: { accessToken: accessToken, refreshToken: refreshToken },
-            user: findUser,
+            data: {
+                tokens: { accessToken: accessToken, refreshToken: refreshToken },
+            },
         };
     } else {
         return {
-            statusCode: 404,
             errMessage: 'User not found',
         };
     }
@@ -70,14 +69,14 @@ export const handleUpdateUser = async (dataFromMiddleware: IdataUserFromMiddlewa
         });
         await Login.updateOne({ userID: getUserUpdate._id }, { accessToken: accessToken, refreshToken: refreshToken });
         return {
-            statusCode: 201,
             errMessage: 'Update Success',
-            data: getUserUpdate,
-            tokens: { accessToken: accessToken, refreshToken: refreshToken },
+            data: {
+                user: getUserUpdate,
+                tokens: { accessToken: accessToken, refreshToken: refreshToken },
+            },
         };
     } else {
         return {
-            statusCode: 404,
             errMessage: 'User not found',
         };
     }

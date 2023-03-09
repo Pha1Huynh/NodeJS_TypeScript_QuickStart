@@ -4,11 +4,8 @@ interface customErr extends ErrorRequestHandler {
     errMessage: string;
     data?: object;
 }
-export function errorHandler(err: customErr, req: Request, res: Response) {
+export function errorHandler(err: customErr, req: Request, res: Response, next: NextFunction) {
     res.status(err.statusCode);
-    if (err.data) {
-        res.json({ errMessage: err.errMessage, data: err.data });
-    } else {
-        res.json({ errMessage: err.errMessage });
-    }
+
+    res.json({ errMessage: err.errMessage });
 }
