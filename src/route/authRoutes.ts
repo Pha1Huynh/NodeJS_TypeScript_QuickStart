@@ -9,14 +9,14 @@ router.post('/refresh-token', authenToken, async (req: customRequest, res: Respo
     const { userInfo } = req;
     if (refreshToken) {
         const data = await authServices.refreshAccessToken(refreshToken, userInfo);
-        console.log('check data from rfToken', data);
-        if (data && data.data) {
-            res.status(201).json(data);
+
+        if (data && data) {
+            res.status(201).json({ data: data });
         } else {
-            res.status(403).json(data);
+            res.status(403).json({ mesage: 'Something went wrong, please login again' });
         }
     } else {
-        next({ statusCode: 400, errMessage: 'Missing params' });
+        next({ statusCode: 400, message: 'Missing params' });
     }
 });
 export = router;

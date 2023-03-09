@@ -12,24 +12,24 @@ router.post('/create', async (req: Request, res: Response, next: NextFunction) =
             name: dataFromClient.name,
             password: dataFromClient.password,
         });
-        if (data && data.data) {
-            res.status(201).json(data);
+        if (data) {
+            res.status(201).json({ message: 'Created success', data: data });
         }
     } else {
-        next({ statusCode: 400, errMessage: 'Missing params' });
+        next({ statusCode: 400, message: 'Missing params' });
     }
 });
 router.post('/login', async (req: Request, res: Response, next: NextFunction) => {
     const dataFromClient = req.body;
     if (dataFromClient && dataFromClient.name && dataFromClient.password) {
         const data = await userServices.handleLogin(dataFromClient);
-        if (data && data.data) {
-            res.status(201).json(data);
+        if (data) {
+            res.status(201).json({ data: data });
         } else {
-            res.status(403).json(data);
+            res.status(401).json({ message: 'User not found' });
         }
     } else {
-        next({ statusCode: 400, errMessage: 'Missing params' });
+        next({ statusCode: 400, message: 'Missing params' });
     }
 });
 router.patch('/update', authenToken, async (req: customRequest, res: Response, next: NextFunction) => {
@@ -37,13 +37,11 @@ router.patch('/update', authenToken, async (req: customRequest, res: Response, n
     const { userInfo } = req;
     if (dataFromClient && userInfo) {
         const data = await userServices.handleUpdateUser(userInfo, dataFromClient);
-        if (data && data.data) {
-            res.status(201).json(data);
-        } else {
-            res.status(403).json(data);
+        if (data) {
+            res.status(201).json({ message: 'Updated success', data: data });
         }
     } else {
-        next({ statusCode: 400, errMessage: 'Missing params' });
+        next({ statusCode: 400, message: 'Missing params' });
     }
 });
 

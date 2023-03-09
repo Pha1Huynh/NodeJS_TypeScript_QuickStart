@@ -1,11 +1,11 @@
 import { Request, Response, ErrorRequestHandler, NextFunction } from 'express';
 interface customErr extends ErrorRequestHandler {
     statusCode: number;
-    errMessage: string;
+    message: string;
     data?: object;
 }
 export function errorHandler(err: customErr, req: Request, res: Response, next: NextFunction) {
     res.status(err.statusCode);
 
-    res.json({ errMessage: err.errMessage });
+    res.json({ message: err.message });
 }

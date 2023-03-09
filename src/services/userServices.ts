@@ -22,16 +22,15 @@ export const handleRegister = async (dataRegister: IUserInfo) => {
     if (dataRegister) {
         const user = new User(dataRegister);
         await user.save();
-        return { data: user, errMessage: 'Created success' };
+        return { user };
     }
 };
 export const handleLogin = async (loginInfo: IUserInfo) => {
     const findUser = await User.findOne(loginInfo);
-
     if (findUser) {
         const { accessToken, refreshToken } = await handleBuildTokens({
-            name: loginInfo.name,
-            password: loginInfo.password,
+            name: findUser.name,
+            password: findUser.password,
             isAdmin: findUser.isAdmin,
             userID: findUser._id,
         });
@@ -46,14 +45,7 @@ export const handleLogin = async (loginInfo: IUserInfo) => {
 
         await login.save();
         return {
-            errMessage: 'Login sucess',
-            data: {
-                tokens: { accessToken: accessToken, refreshToken: refreshToken },
-            },
-        };
-    } else {
-        return {
-            errMessage: 'User not found',
+            tokens: { accessToken: accessToken, refreshToken: refreshToken },
         };
     }
 };
@@ -69,15 +61,8 @@ export const handleUpdateUser = async (dataFromMiddleware: IdataUserFromMiddlewa
         });
         await Login.updateOne({ userID: getUserUpdate._id }, { accessToken: accessToken, refreshToken: refreshToken });
         return {
-            errMessage: 'Update Success',
-            data: {
-                user: getUserUpdate,
-                tokens: { accessToken: accessToken, refreshToken: refreshToken },
-            },
-        };
-    } else {
-        return {
-            errMessage: 'User not found',
+            user: getUserUpdate,
+            tokens: { accessToken: accessToken, refreshToken: refreshToken },
         };
     }
 };
