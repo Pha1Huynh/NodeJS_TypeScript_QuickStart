@@ -13,91 +13,56 @@ export interface IdataUserFromMiddleware extends IUserInfo {
     exp: number;
 }
 
-interface IDataUpdate {
+export interface IDataUpdate {
     name?: string;
     password?: string;
 }
 
 export const handleRegister = async (dataRegister: IUserInfo) => {
-    try {
-        if (dataRegister) {
-            const user = new User(dataRegister);
-            await user.save();
-
-            return {
-                errCode: 0,
-                errMessage: 'Create a new user success',
-            };
-        } else {
-            return {
-                errCode: -1,
-                errMessage: 'Missing params',
-            };
-        }
-    } catch (e) {
-        return e;
+    if (dataRegister) {
+        const user = new User(dataRegister);
+        await user.save();
+        return { user };
     }
 };
 export const handleLogin = async (loginInfo: IUserInfo) => {
-    try {
-        const findUser = await User.findOne(loginInfo);
+    const findUser = await User.findOne(loginInfo);
+    if (findUser) {
+        const { accessToken, refreshToken } = await handleBuildTokens({
+            name: findUser.name,
+            password: findUser.password,
+            isAdmin: findUser.isAdmin,
+            userID: findUser._id,
+        });
+        const userID = findUser._id;
 
-        if (findUser) {
-            const { accessToken, refreshToken } = await handleBuildTokens({
-                name: loginInfo.name,
-                password: loginInfo.password,
-                isAdmin: findUser.isAdmin,
-                userID: findUser._id,
-            });
-            const userID = findUser._id;
+        const findLogin = await Login.findOne({ userID });
 
-            const findLogin = await Login.findOne({ userID });
-
-            if (findLogin) {
-                await Login.deleteOne({ userID });
-            }
-            const login = new Login({ userID, accessToken, refreshToken });
-
-            await login.save();
-            return {
-                errCode: 0,
-                errMessage: 'Login sucess',
-                tokens: { accessToken: accessToken, refreshToken: refreshToken },
-                user: findUser,
-            };
-        } else {
-            return {
-                errCode: -2,
-                errMessage: 'User not found',
-            };
+        if (findLogin) {
+            await Login.deleteOne({ userID });
         }
-    } catch (e) {
-        return e;
+        const login = new Login({ userID, accessToken, refreshToken });
+
+        await login.save();
+        return {
+            tokens: { accessToken: accessToken, refreshToken: refreshToken },
+        };
     }
 };
 export const handleUpdateUser = async (dataFromMiddleware: IdataUserFromMiddleware, data: IDataUpdate) => {
-    try {
-        const userUpdate = await User.updateOne({ _id: dataFromMiddleware.userID }, data);
-        if (userUpdate) {
-            const getUserUpdate = await User.findOne({ _id: dataFromMiddleware.userID });
-            const { accessToken, refreshToken } = await handleBuildTokens({
-                name: getUserUpdate.name,
-                password: getUserUpdate.password,
-                isAdmin: getUserUpdate.isAdmin,
-                userID: getUserUpdate._id,
-            });
-            await Login.updateOne(
-                { userID: getUserUpdate._id },
-                { accessToken: accessToken, refreshToken: refreshToken },
-            );
-            return {
-                errCode: 0,
-                errMessage: 'Update Success',
-                data: getUserUpdate,
-                tokens: { accessToken: accessToken, refreshToken: refreshToken },
-            };
-        }
-    } catch (e) {
-        return e;
+    const userUpdate = await User.updateOne({ _id: dataFromMiddleware.userID }, data);
+    if (userUpdate) {
+        const getUserUpdate = await User.findOne({ _id: dataFromMiddleware.userID });
+        const { accessToken, refreshToken } = await handleBuildTokens({
+            name: getUserUpdate.name,
+            password: getUserUpdate.password,
+            isAdmin: getUserUpdate.isAdmin,
+            userID: getUserUpdate._id,
+        });
+        await Login.updateOne({ userID: getUserUpdate._id }, { accessToken: accessToken, refreshToken: refreshToken });
+        return {
+            user: getUserUpdate,
+            tokens: { accessToken: accessToken, refreshToken: refreshToken },
+        };
     }
 };
