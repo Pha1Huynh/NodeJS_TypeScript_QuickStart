@@ -6,49 +6,35 @@ import { customRequest } from '../middleware/authMiddleware';
 const router = express.Router();
 
 router.post('/create', async (req: Request, res: Response, next: NextFunction) => {
-    try {
-        const dataFromClient = req.body;
-
+    const dataFromClient = req.body;
+    if (dataFromClient && dataFromClient.name && dataFromClient.password) {
         const data = await userServices.handleRegister({
             name: dataFromClient.name,
             password: dataFromClient.password,
         });
-        return res.status(201).json({ data });
-    } catch (e) {
-        next(e);
-        return res.status(500).json({
-            errCode: -1,
-            errMessage: 'Internal Server Error',
-        });
+        next(data);
+    } else {
+        next({ statusCode: 400, errMessage: 'Missing params' });
     }
 });
 router.post('/login', async (req: Request, res: Response, next: NextFunction) => {
-    try {
-        const dataFromClient = req.body;
+    const dataFromClient = req.body;
+    if (dataFromClient && dataFromClient.name && dataFromClient.password) {
         const data = await userServices.handleLogin(dataFromClient);
 
-        return res.status(200).json(data);
-    } catch (e) {
-        next(e);
-        return res.status(500).json({
-            errCode: -1,
-            errMessage: 'Internal Server Error',
-        });
+        next(data);
+    } else {
+        next({ statusCode: 400, errMessage: 'Missing params' });
     }
 });
 router.patch('/update', authenToken, async (req: customRequest, res: Response, next: NextFunction) => {
-    try {
-        const { dataFromClient } = req.body;
-        const { userInfo } = req;
-
+    const { dataFromClient } = req.body;
+    const { userInfo } = req;
+    if (dataFromClient && userInfo) {
         const data = await userServices.handleUpdateUser(userInfo, dataFromClient);
-        return res.status(200).json(data);
-    } catch (e) {
-        next(e);
-        return res.status(500).json({
-            errCode: -1,
-            errMessage: 'Internal Server Error',
-        });
+        next(data);
+    } else {
+        next({ statusCode: 400, errMessage: 'Missing params' });
     }
 });
 

@@ -20,7 +20,6 @@ export const authenToken = (req: customRequest, res: Response, next: NextFunctio
         }
         jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, data: IdataUserFromMiddleware) => {
             if (err) {
-                next(err);
                 res.status(401).json({
                     errMessage: 'Accesstoken invalid',
                 });
