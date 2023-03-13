@@ -11,7 +11,7 @@ router.post('/refresh-token', authenToken, async (req: customRequest, res: Respo
         const data = await authServices.refreshAccessToken(refreshToken, userInfo);
 
         if (data && data) {
-            res.status(201).json({ data: data });
+            res.status(200).json({ data: data });
         } else {
             res.status(403).json({ mesage: 'Something went wrong, please login again' });
         }

@@ -10,7 +10,7 @@ export const refreshAccessToken = async (refreshToken: string, userInfo: IdataUs
         });
         if (checkRefreshTokenDB) {
             const findUser = await User.findOne({ _id: userInfo.userID });
-            console.log('check find user', findUser);
+           
 
             const accessToken = await jwt.sign(
                 {
